@@ -26,9 +26,9 @@
   .nav a:hover { color:#7dd3fc; }
 
   /* Hero */
-  .hero { position:relative; height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; perspective:1000px; }
-  .hero-inner { transform-style:preserve-3d; }
-  .layer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:transform; }
+  .hero { position:relative; height:100vh; min-height:560px; display:flex; align-items:center; justify-content:center; text-align:center; perspective:1000px; padding:3.5rem 0; }
+  .hero-inner { transform-style:preserve-3d; width:min(960px, 92vw); display:flex; flex-direction:column; align-items:center; }
+  .layer { position:relative; left:auto; right:auto; top:auto; bottom:auto; display:flex; align-items:center; justify-content:center; width:100%; will-change:transform; }
   .badge { display:inline-block; background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.35); color:#7dd3fc;
            border-radius:999px; padding:.4rem 1.1rem; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; }
   .title { font-size:clamp(2.3rem, 6.5vw, 5rem); font-weight:800; letter-spacing:-0.02em; line-height:1.08;
@@ -112,10 +112,10 @@
     <div class="layer" data-depth="0.45">
       <div class="title" id="titre">Augmentez vos prix<br>sans perdre un client</div>
     </div>
-    <div class="layer" data-depth="0.55" style="top:58%">
+    <div class="layer" data-depth="0.55">
       <div class="subtitle">L'inflation rogne votre marge chaque année. Pendant que les équipes utilisent ProfitWell et Price Intelligently, les solopreneurs n'ont aucun outil. Jusqu'à maintenant.</div>
     </div>
-    <div class="layer" data-depth="0.7" style="top:74%">
+    <div class="layer" data-depth="0.7">
       <div class="cta">
         <a class="btn btn-primary" href="calculateur.html">Faire mon diagnostic gratuit →</a>
         <a class="btn btn-ghost" href="#offres">Voir les offres</a>
