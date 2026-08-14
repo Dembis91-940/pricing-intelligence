@@ -215,6 +215,7 @@
 <script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
 <script>
 /* ============ SCÈNE 3D WEBGL ============ */
+try {
 const canvas = document.getElementById('bg');
 const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
 renderer.setSize(innerWidth, innerHeight);
@@ -314,6 +315,7 @@ carte.addEventListener('mouseleave', () => { carte.style.transform = 'rotateX(0)
   camera.lookAt(0,0,0);
   renderer.render(scene, camera);
 })();
+} catch (err) { var bgEl = document.getElementById('bg'); if (bgEl) bgEl.style.display = 'none'; }
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
