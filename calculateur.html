@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculateur de prix — Pricing Intelligence</title>
+<meta name="description" content="Diagnostic pricing gratuit pour solopreneurs : coûts, heures facturées, churn, valeur perçue → prix recommandé avec 3 scénarios et message d'annonce de hausse généré.">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:#070b14; color:#e8ecf5; overflow-x:hidden; }
+  #bg { position:fixed; inset:0; z-index:0; pointer-events:none; }
+  .content { position:relative; z-index:1; max-width:920px; margin:0 auto; padding:0 1.2rem 4rem; }
+
+  .nav { position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center;
+         padding:1.1rem 2.5rem; background:linear-gradient(rgba(7,11,20,.88), transparent); }
+  .logo { font-weight:800; font-size:1.1rem; }
+  .logo span { background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .nav a { color:#aab8d0; text-decoration:none; margin-left:1.5rem; font-size:.9rem; }
+  .nav a:hover { color:#7dd3fc; }
+
+  .hero { text-align:center; padding:7rem 0 2.5rem; }
+  .badge { display:inline-block; background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.35); color:#7dd3fc;
+           border-radius:999px; padding:.35rem 1rem; font-size:.78rem; margin-bottom:1.1rem; letter-spacing:.05em; }
+  .hero h1 { font-size:clamp(1.9rem,5vw,3rem); background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8);
+             -webkit-background-clip:text; background-clip:text; color:transparent; line-height:1.15; }
+  .hero p { color:#9fb0c9; margin:1rem auto 0; max-width:620px; line-height:1.6; }
+
+  /* Questionnaire */
+  .card { background:rgba(13,18,32,.78); border:1px solid rgba(255,255,255,.1); border-radius:22px;
+          padding:2.2rem 2rem; backdrop-filter:blur(12px); margin-top:2rem; }
+  .progress { display:flex; gap:.5rem; margin-bottom:1.8rem; }
+  .progress .seg { flex:1; height:5px; border-radius:99px; background:rgba(255,255,255,.1); }
+  .progress .seg.on { background:linear-gradient(90deg,#0ea5e9,#818cf8); }
+  .steps { display:flex; justify-content:space-between; margin-bottom:1.6rem; }
+  .steps .st { color:#5b6b85; font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; font-weight:700; }
+  .steps .st.on { color:#7dd3fc; }
+
+  .q h2 { font-size:1.35rem; color:#dbeafe; margin-bottom:.3rem; }
+  .q .hint { color:#7c8aa5; font-size:.85rem; margin-bottom:1.2rem; line-height:1.5; }
+  .q label { display:block; font-size:.85rem; color:#9fb0c9; margin:1rem 0 .35rem; }
+  .q input[type=number], .q select { width:100%; padding:.8rem .9rem; border-radius:11px; border:1px solid rgba(255,255,255,.15);
+             background:#0b1220; color:#e8ecf5; font-size:1rem; outline:none; }
+  .q input[type=number]:focus, .q select:focus { border-color:rgba(56,189,248,.55); box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .q .row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+  .unit { position:relative; }
+  .unit input { padding-right:2.6rem; }
+  .unit .suffix { position:absolute; right:.9rem; top:50%; transform:translateY(-50%); color:#5b6b85; font-size:.9rem; pointer-events:none; }
+
+  .btns { display:flex; gap:.8rem; margin-top:1.8rem; }
+  .btns .btn { flex:1; padding:.9rem; border-radius:12px; border:0; font-weight:700; font-size:.95rem; cursor:pointer; }
+  .btn-next { background:linear-gradient(120deg,#0ea5e9,#6366f1); color:#fff; }
+  .btn-next:hover { box-shadow:0 0 25px rgba(99,102,241,.55); }
+  .btn-prev { background:transparent; border:1px solid rgba(255,255,255,.2) !important; color:#aab8d0; }
+  .btn-prev:hover { color:#fff; }
+  .err-msg { color:#f87171; font-size:.85rem; margin-top:.8rem; display:none; }
+
+  /* Résultats */
+  .results { display:none; }
+  .res-head { text-align:center; margin:2.5rem 0 1.5rem; }
+  .res-head h2 { font-size:clamp(1.6rem,4vw,2.2rem); background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8);
+                 -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .res-head p { color:#9fb0c9; margin-top:.5rem; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:2rem; }
+  .kpi { background:rgba(13,18,32,.78); border:1px solid rgba(255,255,255,.1); border-radius:16px; padding:1.2rem; text-align:center; }
+  .kpi b { display:block; font-size:1.45rem; color:#7dd3fc; margin-bottom:.2rem; }
+  .kpi span { color:#7c8aa5; font-size:.8rem; }
+
+  .scenarios { display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1.2rem; margin-bottom:2.2rem; }
+  .scen { background:rgba(13,18,32,.78); border:1px solid rgba(255,255,255,.1); border-radius:18px; padding:1.6rem; position:relative;
+          transition:transform .2s, box-shadow .2s; }
+  .scen:hover { transform:translateY(-4px); }
+  .scen .nom { font-weight:800; font-size:1.05rem; color:#dbeafe; }
+  .scen .ton { font-size:.75rem; color:#7c8aa5; margin-bottom:1rem; }
+  .scen .prix-cli { font-size:1.9rem; font-weight:800; color:#7dd3fc; }
+  .scen .prix-cli small { font-size:.85rem; color:#7c8aa5; font-weight:400; }
+  .scen .ligne { color:#aab8d0; font-size:.85rem; margin-top:.5rem; }
+  .scen .ligne b { color:#e8ecf5; }
+  .scen .gain { margin-top:.8rem; padding:.5rem .7rem; border-radius:10px; font-size:.85rem; font-weight:700; }
+  .scen .gain.pos { background:rgba(94,234,212,.1); color:#5eead4; }
+  .scen .gain.neg { background:rgba(248,113,113,.1); color:#f87171; }
+  .scen .rec { position:absolute; top:-11px; right:14px; background:linear-gradient(120deg,#0ea5e9,#6366f1); color:#fff;
+               font-size:.7rem; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:.28rem .7rem; border-radius:99px; }
+  .scen button { width:100%; margin-top:1rem; padding:.7rem; border:1px solid rgba(56,189,248,.4); background:transparent; color:#7dd3fc;
+                 border-radius:10px; font-weight:600; font-size:.85rem; cursor:pointer; }
+  .scen button:hover { background:rgba(56,189,248,.1); }
+
+  .msg-box { background:rgba(13,18,32,.78); border:1px solid rgba(94,234,212,.25); border-radius:18px; padding:1.8rem; margin-bottom:1rem; }
+  .msg-box h3 { color:#dbeafe; font-size:1.05rem; margin-bottom:.2rem; }
+  .msg-box .note { color:#7c8aa5; font-size:.8rem; margin-bottom:1rem; }
+  .msg-box textarea { width:100%; min-height:300px; background:#0b1220; border:1px solid rgba(255,255,255,.12); border-radius:12px;
+                      color:#c8d6ea; font-size:.9rem; line-height:1.65; padding:1.1rem; resize:vertical; outline:none; font-family:inherit; white-space:pre-wrap; }
+  .msg-actions { display:flex; gap:.8rem; margin-top:1rem; flex-wrap:wrap; }
+  .msg-actions button { flex:1; min-width:150px; padding:.8rem; border:0; border-radius:11px; font-weight:700; font-size:.9rem; cursor:pointer; }
+  .btn-copy { background:linear-gradient(120deg,#0ea5e9,#6366f1); color:#fff; }
+  .btn-copy:hover { box-shadow:0 0 25px rgba(99,102,241,.5); }
+  .btn-dl { background:transparent; border:1px solid rgba(255,255,255,.2) !important; color:#aab8d0; }
+  .btn-dl:hover { color:#fff; }
+  .copied { color:#5eead4; font-size:.85rem; font-weight:600; margin-top:.7rem; display:none; }
+
+  .methode { margin-top:2rem; background:rgba(13,18,32,.6); border:1px solid rgba(255,255,255,.08); border-radius:18px; padding:1.6rem; }
+  .methode h3 { color:#dbeafe; margin-bottom:.8rem; font-size:1.05rem; }
+  .methode p { color:#9fb0c9; font-size:.87rem; line-height:1.7; margin-bottom:.6rem; }
+  .methode code { background:#0b1220; border:1px solid rgba(255,255,255,.1); border-radius:6px; padding:.1rem .45rem; color:#7dd3fc; font-size:.82rem; }
+
+  .cta-bas { text-align:center; margin-top:2.5rem; }
+  .cta-bas a { display:inline-block; padding:.9rem 2rem; border-radius:999px; background:linear-gradient(120deg,#0ea5e9,#6366f1);
+               color:#fff; text-decoration:none; font-weight:700; }
+  .cta-bas a:hover { box-shadow:0 0 30px rgba(99,102,241,.55); }
+  .cta-bas p { color:#7c8aa5; font-size:.82rem; margin-top:.8rem; }
+
+  .footer { text-align:center; color:#5b6b85; padding:2rem 1rem 0; font-size:.82rem; }
+  .footer a { color:#7dd3fc; text-decoration:none; }
+
+  @media (max-width:640px){ .q .row { grid-template-columns:1fr; } .nav { padding:1rem 1.2rem; } .card { padding:1.6rem 1.2rem; } }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">Pricing<span>Intelligence</span></div>
+  <div>
+    <a href="index.html">Accueil</a>
+    <a href="index.html#offres">Offres</a>
+    <a href="index.html#contact">Contact</a>
+  </div>
+</nav>
+
+<canvas id="bg"></canvas>
+
+<div class="content">
+  <div class="hero">
+    <span class="badge">⚡ Outil gratuit — 100 % dans votre navigateur</span>
+    <h1>Diagnostic pricing :<br>combien devriez-vous facturer ?</h1>
+    <p>Répondez aux questions ci-dessous. En moins de 5 minutes, vous obtenez votre prix recommandé, trois scénarios de hausse chiffrés et le message d'annonce prêt à envoyer à vos clients.</p>
+  </div>
+
+  <!-- ============ QUESTIONNAIRE ============ -->
+  <div class="card" id="quiz">
+    <div class="progress">
+      <div class="seg" id="seg0"></div><div class="seg" id="seg1"></div><div class="seg" id="seg2"></div><div class="seg" id="seg3"></div>
+    </div>
+    <div class="steps">
+      <span class="st" id="st0">Vos coûts</span>
+      <span class="st" id="st1">Votre activité</span>
+      <span class="st" id="st2">Vos clients</span>
+      <span class="st" id="st3">Votre valeur</span>
+    </div>
+
+    <!-- Étape 1 : coûts -->
+    <div class="q" id="etape0">
+      <h2>Vos coûts mensuels</h2>
+      <p class="hint">Additionnez tout ce que votre activité vous coûte chaque mois, même si c'est approximatif. C'est la base de votre prix de revient.</p>
+      <label>Coûts fixes mensuels (logiciels, loyer, assurances, cotisations…)</label>
+      <div class="unit"><input id="q-fixes" type="number" min="0" step="10" placeholder="Ex : 1 200"><span class="suffix">€ / mois</span></div>
+      <div class="row">
+        <div>
+          <label>Coûts variables mensuels (matériel, sous-traitance, déplacements…)</label>
+          <div class="unit"><input id="q-variables" type="number" min="0" step="10" placeholder="Ex : 300"><span class="suffix">€ / mois</span></div>
+        </div>
+        <div>
+          <label>Marge cible sur votre prix de revient</label>
+          <select id="q-marge">
+            <option value="0.20">20 % — marge de sécurité</option>
+            <option value="0.30" selected>30 % — marge saine</option>
+            <option value="0.40">40 % — marge confortable</option>
+            <option value="0.50">50 % — marge premium</option>
+          </select>
+        </div>
+      </div>
+      <div class="btns"><button class="btn btn-next" onclick="suivant(0)">Continuer →</button></div>
+    </div>
+
+    <!-- Étape 2 : activité -->
+    <div class="q" id="etape1" style="display:none">
+      <h2>Votre activité facturée</h2>
+      <p class="hint">Ces chiffres déterminent le temps que vous vendez réellement. Soyez honnête : mieux vaut sous-estimer les heures que les surestimer.</p>
+      <div class="row">
+        <div>
+          <label>Heures facturées par mois</label>
+          <div class="unit"><input id="q-heures" type="number" min="1" step="1" placeholder="Ex : 80"><span class="suffix">h / mois</span></div>
+        </div>
+        <div>
+          <label>Nombre de clients actifs</label>
+          <div class="unit"><input id="q-clients" type="number" min="1" step="1" placeholder="Ex : 12"><span class="suffix">clients</span></div>
+        </div>
+      </div>
+      <div class="btns">
+        <button class="btn btn-prev" onclick="precedent(1)">← Retour</button>
+        <button class="btn btn-next" onclick="suivant(1)">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- Étape 3 : clients -->
+    <div class="q" id="etape2" style="display:none">
+      <h2>Vos clients et votre churn</h2>
+      <p class="hint">Le taux de churn est le pourcentage de clients qui partent chaque mois. S'il est élevé, la hausse devra être prudente — le calculateur en tient compte.</p>
+      <div class="row">
+        <div>
+          <label>Taux de churn mensuel</label>
+          <div class="unit"><input id="q-churn" type="number" min="0" max="100" step="0.5" placeholder="Ex : 3"><span class="suffix">% / mois</span></div>
+        </div>
+        <div>
+          <label>Tarif actuel moyen par client (facultatif)</label>
+          <div class="unit"><input id="q-tarif" type="number" min="0" step="5" placeholder="Ex : 400"><span class="suffix">€ / mois</span></div>
+        </div>
+      </div>
+      <p class="hint" style="margin-top:.8rem">💡 Si vous ne connaissez pas votre tarif moyen par client, laissez vide : les scénarios resteront calculés, sans comparaison avec l'existant.</p>
+      <div class="btns">
+        <button class="btn btn-prev" onclick="precedent(2)">← Retour</button>
+        <button class="btn btn-next" onclick="suivant(2)">Continuer →</button>
+      </div>
+    </div>
+
+    <!-- Étape 4 : valeur -->
+    <div class="q" id="etape3" style="display:none">
+      <h2>La valeur que vous apportez</h2>
+      <p class="hint">Le prix n'est pas qu'une question de coûts : c'est aussi ce que votre client gagne ou économise grâce à vous. Évaluez honnêtement votre valeur perçue.</p>
+      <label>Valeur perçue par vos clients</label>
+      <select id="q-valeur">
+        <option value="1.10">Faible — prestation standard, facilement remplaçable</option>
+        <option value="1.30">Moyenne — utile, mais des alternatives existent</option>
+        <option value="1.55" selected>Forte — résultat concret, difficile à remplacer</option>
+        <option value="1.85">Très forte — transformation majeure, quasi irremplaçable</option>
+      </select>
+      <label>Positionnement souhaité</label>
+      <select id="q-position">
+        <option value="0.95">Standard — au prix du marché</option>
+        <option value="1.05" selected>Expert — justifié par l'expérience</option>
+        <option value="1.15">Premium — haut de gamme assumé</option>
+      </select>
+      <div class="btns">
+        <button class="btn btn-prev" onclick="precedent(3)">← Retour</button>
+        <button class="btn btn-next" onclick="calculer()">Calculer mon prix →</button>
+      </div>
+      <div class="err-msg" id="err-quiz"></div>
+    </div>
+  </div>
+
+  <!-- ============ RÉSULTATS ============ -->
+  <div class="results" id="results">
+    <div class="res-head">
+      <h2>Vos prix recommandés</h2>
+      <p>Trois scénarios, du plus prudent au plus ambitieux. Cliquez sur un scénario pour générer le message d'annonce correspondant.</p>
+    </div>
+
+    <div class="kpis">
+      <div class="kpi"><b id="k-couth"></b><span>coût de revient horaire</span></div>
+      <div class="kpi"><b id="k-breakeven"></b><span>prix horaire de break-even</span></div>
+      <div class="kpi"><b id="k-heures-cli"></b><span>heures par client / mois</span></div>
+      <div class="kpi"><b id="k-churn"></b><span>taux de churn mensuel</span></div>
+    </div>
+
+    <div class="scenarios" id="scenarios"></div>
+
+    <div class="msg-box">
+      <h3>✉️ Votre message d'annonce de hausse</h3>
+      <p class="note">Généré selon le scénario sélectionné. Remplacez <b>{{PRENOM}}</b> par le prénom de chaque client avant l'envoi.</p>
+      <textarea id="msg" readonly></textarea>
+      <div class="msg-actions">
+        <button class="btn-copy" onclick="copier()">📋 Copier le message</button>
+        <button class="btn-dl" onclick="telecharger()">⬇ Télécharger (.txt)</button>
+        <button class="btn-dl" onclick="recommencer()">↺ Recommencer</button>
+      </div>
+      <div class="copied" id="copied">✅ Message copié dans le presse-papiers.</div>
+    </div>
+
+    <div class="methode">
+      <h3>🔬 Comment le prix est calculé</h3>
+      <p><b>1. Coût de revient horaire :</b> <code>(coûts fixes + coûts variables) ÷ heures facturées</code>. C'est votre prix plancher : en dessous, vous travaillez à perte.</p>
+      <p><b>2. Prix horaire de break-even :</b> le coût de revient majoré de votre marge cible, pour dégager un vrai revenu.</p>
+      <p><b>3. Multiplicateur de valeur :</b> selon la valeur perçue (×1,10 à ×1,85) et votre positionnement (×0,95 à ×1,15), le prix s'aligne sur ce que vos clients gagnent grâce à vous — pas seulement sur ce que vous coûtez.</p>
+      <p><b>4. Prix par client :</b> le prix horaire recommandé × le nombre d'heures par client. Le scénario <b>prudent</b> applique ×0,90, l'<b>équilibré</b> le prix recommandé, l'<b>agressif</b> ×1,18.</p>
+      <p style="color:#5b6b85">Les pertes estimées de clients utilisent une élasticité prix modérée (25 % du taux de hausse) plafonnée à votre churn actuel : c'est une estimation prudente, pas une science exacte.</p>
+    </div>
+
+    <div class="cta-bas">
+      <a href="index.html#offres">Passer à l'abonnement (15 à 30 €/mois) →</a>
+      <p>Calculateur gratuit et illimité · Les abonnements ajoutent l'audit mensuel et le suivi personnalisé.</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    Pricing Intelligence — <a href="index.html">Accueil</a> · <a href="templates/email-annonce-hausse.md">Templates d'emails</a> · <a href="index.html#contact">Contact</a>
+  </div>
+</div>
+
+<script>
+/* ============ FOND PARTICULES (canvas 2D, léger) ============ */
+(function(){
+  const c=document.getElementById('bg'),x=c.getContext('2d');let W,H,P=[];
+  function rs(){W=c.width=innerWidth;H=c.height=innerHeight;P=Array.from({length:Math.min(180,innerWidth/6)},()=>({x:Math.random()*W,y:Math.random()*H,z:Math.random()*60,r:Math.random()*1.8+.4}));}
+  addEventListener('resize',rs);rs();
+  let mx=0,my=0;addEventListener('mousemove',e=>{mx=(e.clientX/W-.5)*40;my=(e.clientY/H-.5)*40});
+  function loop(){
+    x.clearRect(0,0,W,H);
+    for(const p of P){
+      p.y-=p.z/400;if(p.y<-10){p.y=H+10;p.x=Math.random()*W}
+      const s=p.z/60,px=p.x+mx*s,py=p.y+my*s;
+      x.beginPath();x.arc(px,py,p.r*(1+s*.6),0,7);x.fillStyle=`rgba(94,234,212,${.12+p.z*.006})`;x.fill();
+    }
+    requestAnimationFrame(loop)
+  }
+  loop();
+})();
+
+/* ============ NAVIGATION DU QUESTIONNAIRE ============ */
+let etape = 0;
+const NB_ETAPES = 4;
+
+function afficher(i){
+  etape = i;
+  for(let e=0;e<NB_ETAPES;e++){
+    document.getElementById('etape'+e).style.display = e===i ? 'block' : 'none';
+    document.getElementById('seg'+e).className = e<=i ? 'seg on' : 'seg';
+    document.getElementById('st'+e).className = e===i ? 'st on' : 'st';
+  }
+  document.getElementById('err-quiz').style.display='none';
+}
+
+function valider(i){
+  const champs = [
+    ['q-fixes','q-variables'],
+    ['q-heures','q-clients'],
+    ['q-churn'],
+    []
+  ][i];
+  for(const id of champs){
+    const v = parseFloat(document.getElementById(id).value);
+    if(isNaN(v) || v < 0){ return false; }
+  }
+  if(i===0 && (isNaN(parseFloat(document.getElementById('q-fixes').value)) || isNaN(parseFloat(document.getElementById('q-variables').value)))) return false;
+  if(i===1 && (isNaN(parseFloat(document.getElementById('q-heures').value)) || parseFloat(document.getElementById('q-heures').value)<=0)) return false;
+  if(i===1 && (isNaN(parseFloat(document.getElementById('q-clients').value)) || parseFloat(document.getElementById('q-clients').value)<=0)) return false;
+  return true;
+}
+
+function suivant(i){
+  if(!valider(i)){
+    const err=document.getElementById('err-quiz');
+    err.textContent='Merci de remplir les champs demandés avec des nombres valides.';
+    err.style.display='block';
+    return;
+  }
+  afficher(i+1);
+}
+function precedent(i){ afficher(i-1); }
+
+/* ============ MOTEUR DE CALCUL ============ */
+const fmt = n => new Intl.NumberFormat('fr-FR',{maximumFractionDigits:0}).format(Math.round(n));
+const fmt2 = n => new Intl.NumberFormat('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const fmt1 = n => new Intl.NumberFormat('fr-FR',{maximumFractionDigits:1}).format(n);
+
+function calculer(){
+  if(!valider(3)){ /* étape 4 n'a que des selects, rien à valider */ }
+  const fixes = parseFloat(document.getElementById('q-fixes').value) || 0;
+  const variables = parseFloat(document.getElementById('q-variables').value) || 0;
+  const heures = parseFloat(document.getElementById('q-heures').value);
+  const clients = parseFloat(document.getElementById('q-clients').value);
+  const churn = parseFloat(document.getElementById('q-churn').value) || 0;
+  const tarifActuel = parseFloat(document.getElementById('q-tarif').value) || 0;
+  const multValeur = parseFloat(document.getElementById('q-valeur').value);
+  const position = parseFloat(document.getElementById('q-position').value);
+  const marge = parseFloat(document.getElementById('q-marge').value);
+
+  if(isNaN(heures)||heures<=0||isNaN(clients)||clients<=0){
+    const err=document.getElementById('err-quiz');
+    err.textContent='Merci de remplir les heures facturées et le nombre de clients.';
+    err.style.display='block';
+    return;
+  }
+
+  const coutHoraire = (fixes + variables) / heures;
+  const breakEvenHoraire = coutHoraire / (1 - marge);
+  const prixRecomHoraire = breakEvenHoraire * multValeur * position;
+  const heuresParClient = heures / clients;
+  const prixClientRecom = prixRecomHoraire * heuresParClient;
+
+  /* 3 scénarios */
+  const scen = [
+    { id:'prudent', nom:'🛡️ Prudent', coef:0.90, ton:'Hausse douce, zéro friction — idéal si votre churn est élevé ou vos clients sensibles.' },
+    { id:'equilibre', nom:'⚖️ Équilibré', coef:1.00, ton:'Aligné sur votre valeur réelle — le meilleur rapport hausse / risque.' },
+    { id:'agressif', nom:'🚀 Agressif', coef:1.18, ton:'Repositionnement premium — réservé aux expert·e·s à forte valeur perçue.' }
+  ];
+
+  /* Recommandation */
+  let reco = 'equilibre';
+  if(churn > 7) reco = 'prudent';
+  else if(multValeur >= 1.85 && position >= 1.05 && churn <= 4) reco = 'agressif';
+
+  /* KPIs */
+  document.getElementById('k-couth').textContent = fmt2(coutHoraire) + ' €';
+  document.getElementById('k-breakeven').textContent = fmt2(breakEvenHoraire) + ' €';
+  document.getElementById('k-heures-cli').textContent = fmt1(heuresParClient) + ' h';
+  document.getElementById('k-churn').textContent = fmt1(churn) + ' %';
+
+  /* Cartes scénarios */
+  const box = document.getElementById('scenarios');
+  box.innerHTML = '';
+  const data = {};
+  scen.forEach(s => {
+    const prixClient = prixClientRecom * s.coef;
+    const prixHoraire = prixRecomHoraire * s.coef;
+    const hausse = tarifActuel > 0 ? (prixClient / tarifActuel - 1) : null;
+    const pertes = tarifActuel > 0 && hausse > 0
+      ? Math.round(clients * Math.min(churn/100, hausse * 0.25))
+      : 0;
+    const ancienCA = tarifActuel > 0 ? clients * tarifActuel : null;
+    const nouveauCA = (clients - pertes) * prixClient;
+    const gain = ancienCA !== null ? nouveauCA - ancienCA : nouveauCA - (fixes + variables);
+
+    data[s.id] = { prixClient, prixHoraire, hausse, pertes, nouveauCA, gain };
+
+    const div = document.createElement('div');
+    div.className = 'scen';
+    if(s.id === reco) div.innerHTML += '<div class="rec">Recommandé</div>';
+    div.innerHTML +=
+      '<div class="nom">' + s.nom + '</div>' +
+      '<div class="ton">' + s.ton + '</div>' +
+      '<div class="prix-cli">' + fmt(prixClient) + ' €<small> / client / mois</small></div>' +
+      '<div class="ligne">Prix horaire : <b>' + fmt2(prixHoraire) + ' €</b></div>' +
+      (hausse !== null && hausse > 0 ? '<div class="ligne">Hausse vs actuel : <b>+' + fmt1(hausse*100) + ' %</b></div>'
+        : (hausse !== null ? '<div class="ligne">Tarif actuel : <b>' + fmt(tarifActuel) + ' €</b> — déjà au-dessus du prix calculé</div>'
+        : '<div class="ligne">Tarif actuel : <b>non renseigné</b></div>')) +
+      '<div class="ligne">Clients perdus (est.) : <b>' + pertes + ' / ' + clients + '</b></div>' +
+      '<div class="ligne">CA mensuel projeté : <b>' + fmt(nouveauCA) + ' €</b></div>' +
+      '<div class="gain ' + (gain >= 0 ? 'pos' : 'neg') + '">' + (gain >= 0 ? '▲ +' : '▼ ') + fmt(Math.abs(gain)) + ' € / mois</div>' +
+      '<button onclick="genererMessage(\'' + s.id + '\')">✉️ Générer le message</button>';
+    box.appendChild(div);
+  });
+
+  /* Stocker pour la génération des messages */
+  const dateEffet = prochain1er();                       /* "le 1er septembre 2026" */
+  window.__calc = {
+    data, reco, prixRecomHoraire,
+    prenom: '{{PRENOM}}',
+    dateEffet,
+    dateEffet2: 'du ' + dateEffet.slice(3),              /* "du 1er septembre 2026" */
+    churn
+  };
+
+  genererMessage(reco);
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('results').style.display = 'block';
+  document.getElementById('results').scrollIntoView({ behavior:'smooth', block:'start' });
+}
+
+function prochain1er(){
+  const d = new Date();
+  const m = d.getMonth() + 1;
+  const an = m === 12 ? d.getFullYear() + 1 : d.getFullYear();
+  const mois = m === 12 ? 1 : m + 1;
+  const moisLong = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'][mois-1];
+  return 'le 1er ' + moisLong + ' ' + an;
+}
+
+/* ============ MESSAGES D'ANNONCE PAR SCÉNARIO ============ */
+function genererMessage(id){
+  const c = window.__calc;
+  if(!c) return;
+  const s = c.data[id];
+  const pr = c.prenom;
+  const pct = s.hausse !== null && s.hausse > 0 ? fmt1(s.hausse*100) + ' %' : null;
+  const pctPhrase = pct !== null ? ' de ' + pct : '';
+
+  let msg = '';
+  if(id === 'prudent'){
+    msg =
+'Bonjour ' + pr + ',\n\n' +
+'Je vous écris pour vous informer d\'un petit ajustement de mes tarifs, qui prendra effet ' + c.dateEffet + '.\n\n' +
+'Comme beaucoup d\'indépendants, je vois mes coûts (logiciels, matériel, cotisations) augmenter régulièrement depuis deux ans. Pour continuer à vous offrir le même niveau de qualité et de réactivité sans rogner sur ce qui fait la différence, je suis contraint d\'ajuster mes prix' + pctPhrase + '.\n\n' +
+'Votre nouveau tarif passera à ' + fmt(s.prixClient) + ' € par mois.\n\n' +
+'Je sais que cette hausse peut susciter des questions : je reste à votre disposition pour en parler, et je vous remercie sincèrement pour votre confiance.' +
+'\n\nBien cordialement,\n[VOTRE PRÉNOM] — [VOTRE ACTIVITÉ]';
+  } else if(id === 'equilibre'){
+    msg =
+'Bonjour ' + pr + ',\n\n' +
+'Je voulais vous informer personnellement d\'une évolution de mes tarifs, qui prendra effet ' + c.dateEffet + '.\n\n' +
+'Depuis que nous travaillons ensemble, je m\'engage à vous apporter [RÉSULTAT CONCRET : ex. des livraisons fiables, un accompagnement réactif, des résultats mesurables]. Pour maintenir ce niveau d\'exigence — et continuer à investir dans les outils et la formation qui vous profitent directement — mes tarifs évoluent' + pctPhrase + ' à partir de cette date.\n\n' +
+'Votre nouveau tarif sera de ' + fmt(s.prixClient) + ' € par mois.\n\n' +
+'Cette décision a été réfléchie : elle me permet de vous servir mieux et plus longtemps. Si vous souhaitez en discuter, je réponds personnellement à tous vos messages.' +
+'\n\nAvec toute ma considération,\n[VOTRE PRÉNOM] — [VOTRE ACTIVITÉ]';
+  } else {
+    msg =
+'Bonjour ' + pr + ',\n\n' +
+'Je tenais à vous annoncer une évolution importante de mon offre, effective ' + c.dateEffet + '.\n\n' +
+'Depuis [DATE DE DÉBUT], mon travail avec vous a évolué : [RÉSULTATS OBTENUS, ex. vos revenus ont progressé de X %, vous avez gagné X heures par mois]. Pour continuer à garantir ce niveau de résultat — et rien de moins — je fais évoluer mon positionnement, et mes tarifs avec lui.\n\n' +
+'À compter ' + c.dateEffet2 + ', votre tarif passe à ' + fmt(s.prixClient) + ' € par mois' + (pct !== null ? ' (soit ' + pct + ' de plus)' : '') + '.\n\n' +
+'Pour vous remercier de votre confiance, ce tarif reste garanti pendant 12 mois : il ne sera pas réévalué d\'ici là. Je serais ravi d\'échanger avec vous sur cette nouvelle étape.' +
+'\n\nExcellente journée,\n[VOTRE PRÉNOM] — [VOTRE ACTIVITÉ]';
+  }
+  document.getElementById('msg').value = msg;
+  document.getElementById('copied').style.display='none';
+  document.getElementById('msg').scrollIntoView({ behavior:'smooth', block:'center' });
+}
+
+function copier(){
+  const t = document.getElementById('msg');
+  t.select();
+  t.setSelectionRange(0, 99999);
+  const done = () => document.getElementById('copied').style.display='block';
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(t.value).then(done).catch(()=>{ try{ document.execCommand('copy'); done(); }catch(e){} });
+  } else {
+    try{ document.execCommand('copy'); done(); }catch(e){}
+  }
+}
+
+function telecharger(){
+  const blob = new Blob([document.getElementById('msg').value], { type:'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'annonce-hausse-prix.txt';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function recommencer(){
+  document.getElementById('results').style.display='none';
+  document.getElementById('quiz').style.display='block';
+  afficher(0);
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+/* Entrée clavier : Entrée = continuer */
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && document.getElementById('quiz').style.display !== 'none'){
+    const champ = e.target && e.target.id;
+    if(champ && champ.indexOf('q-') === 0){ e.preventDefault(); suivant(etape); }
+  }
+});
+</script>
+
+<script src="chatbot-config.js"></script>
+<script src="chatbot.js"></script>
+</body>
+</html>

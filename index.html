@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing Intelligence — Augmentez vos prix sans perdre un client</title>
+<meta name="description" content="Le premier outil de pricing pensé pour les solopreneurs français. Diagnostic complet, scénarios de hausse et messages d'annonce générés — dès 15 €/mois.">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'Segoe UI', system-ui, sans-serif; background:#070b14; color:#e8ecf5; overflow-x:hidden; }
+  #bg { position:fixed; inset:0; z-index:0; }
+  .content { position:relative; z-index:2; }
+
+  /* Navigation */
+  .nav { position:fixed; top:0; left:0; right:0; z-index:10; display:flex; justify-content:space-between; align-items:center;
+         padding:1.2rem 2.5rem; background:linear-gradient(rgba(7,11,20,.88), transparent); }
+  .logo { font-weight:800; font-size:1.15rem; letter-spacing:.02em; }
+  .logo span { background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .nav a { color:#aab8d0; text-decoration:none; margin-left:1.5rem; font-size:.9rem; }
+  .nav a:hover { color:#7dd3fc; }
+
+  /* Hero */
+  .hero { position:relative; height:100vh; display:flex; align-items:center; justify-content:center; text-align:center; perspective:1000px; }
+  .hero-inner { transform-style:preserve-3d; }
+  .layer { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; will-change:transform; }
+  .badge { display:inline-block; background:rgba(56,189,248,.12); border:1px solid rgba(56,189,248,.35); color:#7dd3fc;
+           border-radius:999px; padding:.4rem 1.1rem; font-size:.8rem; letter-spacing:.06em; text-transform:uppercase; }
+  .title { font-size:clamp(2.3rem, 6.5vw, 5rem); font-weight:800; letter-spacing:-0.02em; line-height:1.08;
+           background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8); -webkit-background-clip:text; background-clip:text; color:transparent;
+           text-shadow:0 0 40px rgba(56,189,248,.25); }
+  .subtitle { font-size:clamp(1rem, 2.2vw, 1.4rem); color:#9fb0c9; margin-top:1.3rem; font-weight:300; max-width:640px; line-height:1.6; }
+  .cta { margin-top:2.4rem; display:inline-flex; gap:.8rem; flex-wrap:wrap; justify-content:center; }
+  .btn { padding:.9rem 2rem; border-radius:999px; font-weight:600; text-decoration:none; transition:transform .2s, box-shadow .2s; font-size:.95rem; }
+  .btn-primary { background:linear-gradient(120deg,#0ea5e9,#6366f1); color:#fff; box-shadow:0 0 30px rgba(99,102,241,.4); }
+  .btn-ghost { border:1px solid rgba(255,255,255,.25); color:#dbe4f0; }
+  .btn:hover { transform:translateY(-3px) scale(1.03); box-shadow:0 0 45px rgba(99,102,241,.65); }
+
+  .scroll-hint { position:absolute; bottom:2.2rem; left:50%; transform:translateX(-50%); color:#5b6b85; font-size:.8rem; letter-spacing:.25em; text-transform:uppercase; animation:float 2.4s ease-in-out infinite; }
+  @keyframes float { 0%,100%{transform:translate(-50%,0)} 50%{transform:translate(-50%,-10px)} }
+
+  /* Section problème / méthode */
+  .demo { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:4rem 6vw; }
+  .card { max-width:680px; background:rgba(13,18,32,.7); border:1px solid rgba(255,255,255,.09); border-radius:24px;
+          padding:2.5rem; backdrop-filter:blur(14px); transform-style:preserve-3d; will-change:transform; box-shadow:0 30px 80px rgba(0,0,0,.5); }
+  .card h2 { font-size:1.8rem; margin-bottom:1rem; background:linear-gradient(120deg,#a5f3fc,#818cf8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .card p { color:#aab8d0; line-height:1.7; font-size:.98rem; }
+  .card p + p { margin-top:.9rem; }
+  .stats { display:flex; gap:2rem; margin-top:2.2rem; flex-wrap:wrap; }
+  .stat b { font-size:1.6rem; color:#7dd3fc; display:block; }
+  .stat span { color:#7c8aa5; font-size:.85rem; }
+
+  /* Offres */
+  .offers { min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:5rem 6vw; }
+  .sec-title { text-align:center; font-size:clamp(1.8rem,4vw,2.6rem); font-weight:800; margin-bottom:.8rem;
+               background:linear-gradient(120deg,#5eead4,#38bdf8,#818cf8); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .sec-sub { text-align:center; color:#9fb0c9; max-width:560px; margin:0 auto 2.8rem; line-height:1.6; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:1.4rem; width:100%; max-width:1080px; }
+  .offer { background:rgba(13,18,32,.72); border:1px solid rgba(255,255,255,.09); border-radius:22px; padding:2rem;
+           display:flex; flex-direction:column; backdrop-filter:blur(14px); transition:transform .25s, box-shadow .25s; }
+  .offer:hover { transform:translateY(-6px); }
+  .offer.pop { border-color:rgba(56,189,248,.5); box-shadow:0 0 34px rgba(56,189,248,.16); }
+  .offer .tag { font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:#7dd3fc; font-weight:700; }
+  .offer h3 { font-size:1.25rem; margin:.5rem 0 .4rem; color:#dbeafe; }
+  .offer .desc { color:#9fb0c9; font-size:.9rem; line-height:1.6; flex:1; }
+  .offer ul { list-style:none; margin-top:1rem; }
+  .offer li { color:#aab8d0; font-size:.85rem; padding:.3rem 0 .3rem 1.4rem; position:relative; }
+  .offer li::before { content:'✓'; position:absolute; left:0; color:#5eead4; font-weight:700; }
+  .offer .prix { font-size:2rem; font-weight:800; color:#7dd3fc; margin-top:1.2rem; }
+  .offer .prix small { font-size:.85rem; color:#7c8aa5; font-weight:400; }
+  .offer a { margin-top:1.1rem; text-align:center; padding:.75rem; border-radius:12px; background:linear-gradient(120deg,#0ea5e9,#6366f1);
+             color:#fff; text-decoration:none; font-weight:600; font-size:.9rem; }
+  .offer a:hover { box-shadow:0 0 28px rgba(99,102,241,.55); }
+
+  /* Formulaire */
+  .order { min-height:90vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:5rem 6vw; }
+  .form-box { width:100%; max-width:540px; background:rgba(13,18,32,.75); border:1px solid rgba(255,255,255,.1); border-radius:22px;
+              padding:2.4rem; backdrop-filter:blur(14px); }
+  .form-box label { display:block; font-size:.85rem; color:#9fb0c9; margin:.9rem 0 .35rem; }
+  .form-box input, .form-box select { width:100%; padding:.8rem .9rem; border-radius:11px; border:1px solid rgba(255,255,255,.15);
+              background:#0b1220; color:#e8ecf5; font-size:.95rem; outline:none; }
+  .form-box input:focus, .form-box select:focus { border-color:rgba(56,189,248,.55); box-shadow:0 0 0 3px rgba(56,189,248,.12); }
+  .form-box button { width:100%; margin-top:1.4rem; padding:.95rem; border:0; border-radius:12px;
+              background:linear-gradient(120deg,#0ea5e9,#6366f1); color:#fff; font-weight:700; font-size:1rem; cursor:pointer; }
+  .form-box button:hover { box-shadow:0 0 28px rgba(99,102,241,.55); }
+  .ok { text-align:center; color:#5eead4; margin-top:1.1rem; font-weight:600; display:none; }
+  .err { text-align:center; color:#f87171; margin-top:1.1rem; font-weight:600; display:none; }
+
+  .footer { text-align:center; color:#5b6b85; padding:2.5rem 1.5rem 3rem; font-size:.85rem; }
+  .footer a { color:#7dd3fc; text-decoration:none; }
+</style>
+</head>
+<body>
+<nav class="nav">
+  <div class="logo">Pricing<span>Intelligence</span></div>
+  <div>
+    <a href="calculateur.html">Calculateur</a>
+    <a href="#offres">Offres</a>
+    <a href="#contact">Contact</a>
+  </div>
+</nav>
+
+<canvas id="bg"></canvas>
+
+<section class="hero">
+  <div class="hero-inner">
+    <div class="layer" data-depth="0.45">
+      <div class="title" id="titre">Augmentez vos prix<br>sans perdre un client</div>
+    </div>
+    <div class="layer" data-depth="0.55" style="top:58%">
+      <div class="subtitle">L'inflation rogne votre marge chaque année. Pendant que les équipes utilisent ProfitWell et Price Intelligently, les solopreneurs n'ont aucun outil. Jusqu'à maintenant.</div>
+    </div>
+    <div class="layer" data-depth="0.7" style="top:74%">
+      <div class="cta">
+        <a class="btn btn-primary" href="calculateur.html">Faire mon diagnostic gratuit →</a>
+        <a class="btn btn-ghost" href="#offres">Voir les offres</a>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-hint">Défilez</div>
+</section>
+
+<section class="demo" id="demo">
+  <div class="card" id="carte">
+    <span class="badge" style="margin-bottom:1rem">Le problème</span>
+    <h2>Ne pas augmenter vos prix, c'est baisser votre revenu</h2>
+    <p>Depuis 2021, l'inflation française a dépassé 5 % par an à plusieurs reprises. Vos coûts — logiciels, matériel, énergie, cotisations — suivent la même courbe. Mais votre facturation, elle, est restée figée.</p>
+    <p>Les outils de pricing existants sont conçus pour des équipes et des bases de données clients massives. Un solopreneur n'a ni le temps ni le besoin de ça : il lui faut un chiffre clair, trois scénarios et le bon message pour l'annoncer.</p>
+    <div class="stats">
+      <div class="stat"><b>+8 à +25 %</b><span>de hausse recommandée</span></div>
+      <div class="stat"><b>15 min</b><span>pour le diagnostic complet</span></div>
+      <div class="stat"><b>0 client</b><span>perdu si la méthode est respectée</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="offers" id="offres">
+  <h2 class="sec-title">Trois formules, un objectif : votre marge</h2>
+  <p class="sec-sub">Sans engagement, résiliable à tout moment. Chaque formule est pensée pour être rentabilisée dès le premier client qui reste après une hausse.</p>
+  <div class="grid">
+    <div class="offer">
+      <div class="tag">Pour démarrer</div>
+      <h3>Diagnostic</h3>
+      <div class="desc">L'évaluation complète de votre pricing actuel : coûts réels, prix de revient horaire, positionnement face au marché.</div>
+      <ul>
+        <li>Diagnostic complet de votre pricing</li>
+        <li>Prix de revient horaire calculé</li>
+        <li>Recommandation de positionnement</li>
+        <li>Accès aux 5 templates d'emails</li>
+      </ul>
+      <div class="prix">15 €<small> / mois</small></div>
+      <a href="#contact" onclick="document.getElementById('f-offre').value='Diagnostic — 15 €/mois'">Choisir Diagnostic →</a>
+    </div>
+    <div class="offer pop">
+      <div class="tag">Le plus populaire</div>
+      <h3>Calculateur+</h3>
+      <div class="desc">Le calculateur en version illimitée : scénarios détaillés, simulations de portefeuille et messages d'annonce personnalisés à l'infini.</div>
+      <ul>
+        <li>Tout le Diagnostic</li>
+        <li>Scénarios prudent / équilibré / agressif illimités</li>
+        <li>Messages d'annonce générés sur mesure</li>
+        <li>Simulation d'impact sur votre portefeuille</li>
+        <li>Templates d'emails en version complète</li>
+      </ul>
+      <div class="prix">25 €<small> / mois</small></div>
+      <a href="#contact" onclick="document.getElementById('f-offre').value='Calculateur+ — 25 €/mois'">Choisir Calculateur+ →</a>
+    </div>
+    <div class="offer">
+      <div class="tag">Pour maximiser</div>
+      <h3>Pack Pro</h3>
+      <div class="desc">L'accompagnement complet : un audit mensuel personnalisé de votre pricing et de votre portefeuille clients, avec ajustements concrets.</div>
+      <ul>
+        <li>Tout le Calculateur+</li>
+        <li>Audit mensuel personnalisé (30 min)</li>
+        <li>Recommandations chiffrées chaque mois</li>
+        <li>Suivi du churn et des réactions clients</li>
+        <li>Réponse prioritaire par email</li>
+      </ul>
+      <div class="prix">30 €<small> / mois</small></div>
+      <a href="#contact" onclick="document.getElementById('f-offre').value='Pack Pro — 30 €/mois avec audit mensuel'">Choisir Pack Pro →</a>
+    </div>
+  </div>
+</section>
+
+<section class="order" id="contact">
+  <div class="form-box">
+    <h2 class="sec-title" style="font-size:1.5rem;margin-bottom:.4rem">Demander mon accès</h2>
+    <p class="sec-sub" style="font-size:.9rem;margin-bottom:1.2rem">Laissez vos coordonnées : nous activons votre abonnement et vous envoyons le lien d'accès sous 24 h ouvrées.</p>
+    <label>Votre nom</label>
+    <input id="f-nom" placeholder="Ex : Marie Dupont">
+    <label>Votre email</label>
+    <input id="f-email" type="email" placeholder="Ex : marie@monactivite.fr">
+    <label>Offre choisie</label>
+    <select id="f-offre">
+      <option>Diagnostic — 15 €/mois</option>
+      <option>Calculateur+ — 25 €/mois</option>
+      <option>Pack Pro — 30 €/mois avec audit mensuel</option>
+    </select>
+    <button onclick="demander()">Envoyer ma demande →</button>
+    <div class="ok" id="ok">✅ Demande envoyée ! Vous recevrez votre confirmation par email très vite.</div>
+    <div class="err" id="err">Merci de remplir votre nom et votre email.</div>
+  </div>
+</section>
+
+<div class="footer">
+  Pricing Intelligence — conçu pour les solopreneurs français · <a href="calculateur.html">Calculateur gratuit</a> · <a href="templates/email-annonce-hausse.md">Templates d'emails</a><br>
+  <span style="opacity:.7">Une question ? Utilisez le chat en bas à droite 👉</span>
+</div>
+
+<script src="https://unpkg.com/three@0.152.2/build/three.min.js"></script>
+<script>
+/* ============ SCÈNE 3D WEBGL ============ */
+const canvas = document.getElementById('bg');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setSize(innerWidth, innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(60, innerWidth/innerHeight, .1, 100);
+camera.position.z = 8;
+
+/* Particules étoiles */
+const COUNT = 1800;
+const pos = new Float32Array(COUNT*3);
+const col = new Float32Array(COUNT*3);
+for (let i=0;i<COUNT;i++){
+  pos[i*3]   = (Math.random()-.5)*22;
+  pos[i*3+1] = (Math.random()-.5)*14;
+  pos[i*3+2] = (Math.random()-.5)*10 - 2;
+  const c = new THREE.Color().setHSL(.55 + Math.random()*.15, .8, .55 + Math.random()*.35);
+  col[i*3]=c.r; col[i*3+1]=c.g; col[i*3+2]=c.b;
+}
+const geo = new THREE.BufferGeometry();
+geo.setAttribute('position', new THREE.BufferAttribute(pos,3));
+geo.setAttribute('color', new THREE.BufferAttribute(col,3));
+const pts = new THREE.Points(geo, new THREE.PointsMaterial({ size:.035, vertexColors:true, transparent:true, opacity:.85 }));
+scene.add(pts);
+
+/* Objet 3D central : icosaèdre wireframe lumineux */
+const core = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(1.6, 1),
+  new THREE.MeshBasicMaterial({ color:0x38bdf8, wireframe:true, transparent:true, opacity:.28 })
+);
+scene.add(core);
+
+const core2 = new THREE.Mesh(
+  new THREE.IcosahedronGeometry(2.2, 1),
+  new THREE.MeshBasicMaterial({ color:0x818cf8, wireframe:true, transparent:true, opacity:.10 })
+);
+scene.add(core2);
+
+/* Anneaux orbitaux */
+const ring = new THREE.Mesh(
+  new THREE.TorusGeometry(3.1, .008, 8, 90),
+  new THREE.MeshBasicMaterial({ color:0x5eead4, transparent:true, opacity:.35 })
+);
+scene.add(ring);
+
+const mouse = { x:0, y:0 };
+addEventListener('mousemove', e => {
+  mouse.x = (e.clientX/innerWidth -.5)*2;
+  mouse.y = (e.clientY/innerHeight -.5)*2;
+});
+
+addEventListener('resize', () => {
+  camera.aspect = innerWidth/innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+/* ============ PARALLAXE CSS 3D ============ */
+const layers = document.querySelectorAll('.layer');
+addEventListener('mousemove', e => {
+  const x = (e.clientX/innerWidth -.5)*2, y = (e.clientY/innerHeight -.5)*2;
+  layers.forEach(l => {
+    const d = parseFloat(l.dataset.depth);
+    l.style.transform = `translate3d(${x*22*d}px, ${y*16*d}px, 0)`;
+  });
+  core.rotation.y += .0008; core.rotation.x += .0003;
+  ring.rotation.z += .0005;
+});
+
+/* Scroll : profondeur + rotation */
+addEventListener('scroll', () => {
+  const t = scrollY/innerHeight;
+  camera.position.z = 8 - t*4;
+  core.rotation.y = t*Math.PI*2;
+});
+
+/* Carte 3D au survol */
+const carte = document.getElementById('carte');
+carte.addEventListener('mousemove', e => {
+  const r = carte.getBoundingClientRect();
+  const rx = (e.clientY - r.top)/r.height -.5, ry = (e.clientX - r.left)/r.width -.5;
+  carte.style.transform = `rotateX(${rx*-8}deg) rotateY(${ry*10}deg) translateZ(0)`;
+});
+carte.addEventListener('mouseleave', () => { carte.style.transform = 'rotateX(0) rotateY(0)'; });
+
+/* Boucle d'animation */
+(function animate(){
+  requestAnimationFrame(animate);
+  pts.rotation.y += .0006;
+  pts.rotation.x += .0002;
+  core.rotation.y += .0015;
+  core2.rotation.y -= .0008;
+  ring.rotation.x += .0012;
+  camera.position.x += (mouse.x*1.2 - camera.position.x)*.04;
+  camera.position.y += (-mouse.y*.9 - camera.position.y)*.04;
+  camera.lookAt(0,0,0);
+  renderer.render(scene, camera);
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script>
+/* ============ EMAILJS (réel) ============ */
+emailjs.init("8Pui4ZEqxW2jRVF7h");
+function demander(){
+  const nom = document.getElementById('f-nom').value.trim();
+  const email = document.getElementById('f-email').value.trim();
+  const offre = document.getElementById('f-offre').value;
+  const err = document.getElementById('err');
+  if(!nom || !email){ err.style.display='block'; return; }
+  err.style.display='none';
+  emailjs.send("service_cy1ytdb","template_xpo58cv",{
+    site: 'Pricing Intelligence',
+    name: nom,
+    email: email,
+    question: 'Demande d\'abonnement : ' + offre
+  }).then(()=>{
+    document.getElementById('ok').style.display='block';
+    document.getElementById('f-nom').value='';
+    document.getElementById('f-email').value='';
+  }).catch(e=>{ err.textContent = 'Erreur d\'envoi : ' + (e.text || 'réessayez'); err.style.display='block'; });
+}
+</script>
+
+<script src="chatbot-config.js"></script>
+<script src="chatbot.js"></script>
+</body>
+</html>
