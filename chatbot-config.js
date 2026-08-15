@@ -1,7 +1,7 @@
 window.CHATBOT_CONFIG = {
   "name": "Pricing Intelligence",
   "subtitle": "Votre conseiller pricing, disponible 24h/24",
-  "accent": "#0ea5e9",
+  "accent": "#14b8a6",
   "welcome": "Bonjour ! 👋 Je suis le conseiller Pricing Intelligence. Diagnostic de prix, scénarios de hausse, messages d'annonce : je vous réponds en quelques secondes.",
   "quick": [
     "Combien coûte l'abonnement ?",
