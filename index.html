@@ -11,6 +11,22 @@
 <meta property="og:locale" content="fr_FR">
 <meta name="twitter:card" content="summary">
 <meta name="description" content="Le premier outil de pricing pensé pour les solopreneurs français. Diagnostic complet, scénarios de hausse et messages d'annonce générés — dès 15 €/mois.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Pricing Intelligence",
+  "description": "L'outil de pricing pour solopreneurs : diagnostic complet, scénarios de hausse prudent / équilibré / agressif et messages d'annonce générés automatiquement.",
+  "offers": {
+    "@type": "AggregateOffer",
+    "priceCurrency": "EUR",
+    "lowPrice": "15",
+    "highPrice": "30",
+    "offerCount": "3",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body { font-family:'Segoe UI', system-ui, sans-serif; background:#070b14; color:#e8ecf5; overflow-x:hidden; }
@@ -93,6 +109,12 @@
 
   .footer { text-align:center; color:#5b6b85; padding:2.5rem 1.5rem 3rem; font-size:.85rem; }
   .footer a { color:#7dd3fc; text-decoration:none; }
+  /* ---------- Révélation au scroll ---------- */
+  .reveal { opacity:0; transform:translateY(26px); transition:opacity .7s ease, transform .7s ease; }
+  .reveal.visible { opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity:1; transform:none; transition:none; }
+  }
 </style>
 </head>
 <body>
@@ -142,7 +164,7 @@
 <section class="offers" id="offres">
   <h2 class="sec-title">Trois formules, un objectif : votre marge</h2>
   <p class="sec-sub">Sans engagement, résiliable à tout moment. Chaque formule est pensée pour être rentabilisée dès le premier client qui reste après une hausse.</p>
-  <div class="grid">
+  <div class="grid reveal">
     <div class="offer">
       <div class="tag">Pour démarrer</div>
       <h3>Diagnostic</h3>
@@ -188,7 +210,7 @@
 </section>
 
 <section class="order" id="contact">
-  <div class="form-box">
+  <div class="form-box reveal">
     <h2 class="sec-title" style="font-size:1.5rem;margin-bottom:.4rem">Demander mon accès</h2>
     <p class="sec-sub" style="font-size:.9rem;margin-bottom:1.2rem">Laissez vos coordonnées : nous activons votre abonnement et vous envoyons le lien d'accès sous 24 h ouvrées.</p>
     <label>Votre nom</label>
@@ -204,6 +226,7 @@
     <button onclick="demander()">Envoyer ma demande →</button>
     <div class="ok" id="ok">✅ Demande envoyée ! Vous recevrez votre confirmation par email très vite.</div>
     <div class="err" id="err">Merci de remplir votre nom et votre email.</div>
+    <p style="text-align:center;color:#7c8aa5;font-size:.82rem;margin-top:1rem;line-height:1.5;">Paiement par virement ou lien de paiement sécurisé — votre accès est activé sous 24 h ouvrées.</p>
   </div>
 </section>
 
@@ -342,6 +365,19 @@ function demander(){
 }
 </script>
 
+<script>
+/* Révélation au scroll — progressif, non intrusif */
+(function(){
+  var els = document.querySelectorAll('.reveal');
+  if (!('IntersectionObserver' in window)) { for (var i=0;i<els.length;i++) els[i].classList.add('visible'); return; }
+  var io = new IntersectionObserver(function(entries){
+    for (var j=0;j<entries.length;j++){
+      if (entries[j].isIntersecting || entries[j].boundingClientRect.top < window.innerHeight) { entries[j].target.classList.add('visible'); io.unobserve(entries[j].target); }
+    }
+  }, { threshold:.12, rootMargin:'0px 0px -8% 0px' });
+  for (var k=0;k<els.length;k++) io.observe(els[k]);
+})();
+</script>
 <script src="chatbot-config.js"></script>
 <script src="chatbot.js"></script>
 </body>
